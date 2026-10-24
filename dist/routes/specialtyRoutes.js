@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const specialtyController_1 = require("../controllers/specialtyController");
+const authMiddleware_1 = require("../middleware/authMiddleware");
+const router = (0, express_1.Router)();
+router.get('/', specialtyController_1.getAllSpecialties);
+router.get('/:specialtySlug', specialtyController_1.getSpecialtyBySlug);
+router.post('/', authMiddleware_1.authenticateAdmin, specialtyController_1.createSpecialty);
+exports.default = router;

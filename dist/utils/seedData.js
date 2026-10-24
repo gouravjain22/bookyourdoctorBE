@@ -1,0 +1,598 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedDatabaseIfEmpty = exports.seedDatabase = void 0;
+const City_1 = require("../models/City");
+const Specialty_1 = require("../models/Specialty");
+const Clinic_1 = require("../models/Clinic");
+const Doctor_1 = require("../models/Doctor");
+const Admin_1 = require("../models/Admin");
+const Appointment_1 = require("../models/Appointment");
+const tokenService_1 = require("../services/tokenService");
+const seedDatabase = async () => {
+    console.log('🌱 Clearing existing collections...');
+    await Promise.all([
+        City_1.City.deleteMany({}),
+        Specialty_1.Specialty.deleteMany({}),
+        Clinic_1.Clinic.deleteMany({}),
+        Doctor_1.Doctor.deleteMany({}),
+        Admin_1.Admin.deleteMany({}),
+        Appointment_1.Appointment.deleteMany({}),
+    ]);
+    console.log('🌱 Seeding Admin Account...');
+    await Admin_1.Admin.create({
+        name: 'Chief Medical Administrator',
+        email: 'admin@bookyourdoctor.com',
+        password: 'Admin@123456', // Pre-save hook hashes this
+        role: 'superadmin',
+    });
+    console.log('🌱 Seeding Cities...');
+    const cities = await City_1.City.create([
+        {
+            name: 'Pune',
+            slug: 'pune',
+            state: 'Maharashtra',
+            popularLocalities: ['Kothrud', 'Baner', 'Viman Nagar', 'Kalyani Nagar', 'Hinjewadi', 'Aundh', 'Shivaji Nagar'],
+            introContent: 'Find leading doctors and accredited medical clinics across Pune. Book verified appointments with instant WhatsApp notifications.',
+            metaTitle: 'Doctors in Pune | Book Verified Clinic Appointments | BookYourDoctor',
+            metaDescription: 'Discover top-rated doctors in Pune across Kothrud, Baner, Viman Nagar and more. Compare clinic fees, check experience, and book directly.',
+            imageUrl: 'https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=800&auto=format&fit=crop&q=80',
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Bangalore',
+            slug: 'bangalore',
+            state: 'Karnataka',
+            popularLocalities: ['Indiranagar', 'Koramangala', 'Whitefield', 'HSR Layout', 'Jayanagar', 'Malleshwaram'],
+            introContent: 'Connect with renowned medical practitioners and multispecialty clinics across Bengaluru.',
+            metaTitle: 'Doctors in Bangalore | Verified Doctors & Clinics | BookYourDoctor',
+            metaDescription: 'Find and book top doctors in Bangalore across Indiranagar, Koramangala, Whitefield. Real reviews, transparent fees, and WhatsApp updates.',
+            imageUrl: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=800&auto=format&fit=crop&q=80',
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Mumbai',
+            slug: 'mumbai',
+            state: 'Maharashtra',
+            popularLocalities: ['Bandra West', 'Andheri West', 'Powai', 'Juhu', 'Dadar', 'Worli'],
+            introContent: 'Discover Mumbai\'s leading medical specialists and healthcare centers with fast consultation booking.',
+            metaTitle: 'Doctors in Mumbai | Top Specialists & Clinics | BookYourDoctor',
+            metaDescription: 'Consult leading doctors across Mumbai in Bandra, Andheri, Powai. Check verified registration, clinic timings, and book appointments.',
+            imageUrl: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&auto=format&fit=crop&q=80',
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Indore',
+            slug: 'indore',
+            state: 'Madhya Pradesh',
+            popularLocalities: ['Vijay Nagar', 'Old Palasia', 'Saket', 'Scheme 54', 'Bhawarkua'],
+            introContent: 'Search premier doctors and healthcare clinics across Indore for reliable personalized care.',
+            metaTitle: 'Doctors in Indore | Trusted Medical Experts | BookYourDoctor',
+            metaDescription: 'Find verified doctors in Indore across Vijay Nagar and Palasia. Transparent fees, instant WhatsApp confirmation links.',
+            imageUrl: 'https://images.unsplash.com/photo-1626014303757-6466337894a4?w=800&auto=format&fit=crop&q=80',
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Delhi NCR',
+            slug: 'delhi',
+            state: 'Delhi',
+            popularLocalities: ['Connaught Place', 'South Extension', 'Dwarka', 'Vasant Kunj', 'Saket'],
+            introContent: 'Access world-class medical specialists and advanced clinics throughout the National Capital Region.',
+            metaTitle: 'Doctors in Delhi NCR | Book Top Rated Specialists | BookYourDoctor',
+            metaDescription: 'Find top verified doctors in Delhi NCR. Book clinical consultations with verified WhatsApp notifications.',
+            imageUrl: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&auto=format&fit=crop&q=80',
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Hyderabad',
+            slug: 'hyderabad',
+            state: 'Telangana',
+            popularLocalities: ['Banjara Hills', 'Jubilee Hills', 'Gachibowli', 'Madhapur', 'Kondapur'],
+            introContent: 'Find leading physicians and modern healthcare clinics across Hyderabad and Cyberabad.',
+            metaTitle: 'Doctors in Hyderabad | Verified Specialists | BookYourDoctor',
+            metaDescription: 'Book appointments with leading doctors in Hyderabad across Banjara Hills and Hitec City.',
+            imageUrl: 'https://images.unsplash.com/photo-1605007493699-ce65834f8a00?w=800&auto=format&fit=crop&q=80',
+            isPopular: true,
+            isActive: true,
+        },
+    ]);
+    console.log('🌱 Seeding Specialties...');
+    const specialties = await Specialty_1.Specialty.create([
+        {
+            name: 'Cardiologist',
+            slug: 'cardiologist',
+            icon: 'HeartPulse',
+            description: 'Specialists in heart health, cardiovascular disorders, blood pressure, and preventive cardiology.',
+            commonConditions: ['High Blood Pressure', 'Chest Pain', 'Arrhythmia', 'Heart Palpitations', 'Cholesterol'],
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Dermatologist',
+            slug: 'dermatologist',
+            icon: 'Sparkles',
+            description: 'Medical experts diagnosing and treating skin, hair, nail conditions, and aesthetic treatments.',
+            commonConditions: ['Acne & Scars', 'Eczema', 'Hair Loss', 'Psoriasis', 'Skin Pigmentation', 'Allergies'],
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Pediatrician',
+            slug: 'pediatrician',
+            icon: 'Baby',
+            description: 'Dedicated healthcare specialists for infants, children, adolescents, and developmental milestones.',
+            commonConditions: ['Childhood Fever', 'Vaccinations', 'Growth Checkups', 'Asthma', 'Infant Nutrition'],
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Orthopedic Surgeon',
+            slug: 'orthopedic-surgeon',
+            icon: 'Activity',
+            description: 'Specialists in musculoskeletal systems, joint replacements, sports injuries, and spinal health.',
+            commonConditions: ['Knee Pain', 'Back Pain', 'Fractures', 'Arthritis', 'Ligament Tears'],
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Gynecologist & Obstetrician',
+            slug: 'gynecologist',
+            icon: 'HeartHandshake',
+            description: 'Specialists in women\'s reproductive wellness, pregnancy, maternal care, and hormonal health.',
+            commonConditions: ['Pregnancy Care', 'PCOS/PCOD', 'Irregular Periods', 'Menopause', 'Pelvic Health'],
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'General Physician',
+            slug: 'general-physician',
+            icon: 'Stethoscope',
+            description: 'Primary care doctors diagnosing systemic illnesses, seasonal viral infections, diabetes, and preventive checkups.',
+            commonConditions: ['Viral Fever', 'Diabetes Management', 'Thyroid Disorders', 'Digestive Issues', 'Fatigue'],
+            isPopular: true,
+            isActive: true,
+        },
+        {
+            name: 'Neurologist',
+            slug: 'neurologist',
+            icon: 'Brain',
+            description: 'Experts in brain, spinal cord, cranial nerves, and peripheral nervous system disorders.',
+            commonConditions: ['Migraine', 'Epilepsy', 'Neuropathy', 'Vertigo', 'Memory Loss'],
+            isPopular: false,
+            isActive: true,
+        },
+        {
+            name: 'ENT Specialist',
+            slug: 'ent-specialist',
+            icon: 'Ear',
+            description: 'Specialists treating disorders of ear, nose, throat, sinuses, and head & neck surgery.',
+            commonConditions: ['Sinusitis', 'Tinnitus', 'Tonsillitis', 'Hearing Loss', 'Throat Infections'],
+            isPopular: false,
+            isActive: true,
+        },
+    ]);
+    const puneCity = cities.find((c) => c.slug === 'pune');
+    const bglrCity = cities.find((c) => c.slug === 'bangalore');
+    const mumCity = cities.find((c) => c.slug === 'mumbai');
+    const indoreCity = cities.find((c) => c.slug === 'indore');
+    console.log('🌱 Seeding Clinics...');
+    const clinics = await Clinic_1.Clinic.create([
+        // Pune Clinics
+        {
+            name: 'Apex Heart & Wellness Center',
+            slug: 'apex-heart-wellness-center-kothrud',
+            city: puneCity._id,
+            citySlug: 'pune',
+            locality: 'Kothrud',
+            address: 'Plot 42, Mayur Colony, Near Karve Statue, Kothrud, Pune',
+            pincode: '411038',
+            phone: '+912025448899',
+            googleMapsUrl: 'https://maps.google.com/?q=Apex+Heart+Wellness+Center+Kothrud+Pune',
+            openingHours: [
+                { day: 'Monday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Tuesday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Wednesday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Thursday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Friday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Saturday', openTime: '09:00 AM', closeTime: '07:00 PM', isClosed: false },
+                { day: 'Sunday', openTime: '10:00 AM', closeTime: '01:00 PM', isClosed: false },
+            ],
+            slotDurationMinutes: 30,
+            isActive: true,
+        },
+        {
+            name: 'Lifeline Multispecialty Clinic',
+            slug: 'lifeline-multispecialty-clinic-baner',
+            city: puneCity._id,
+            citySlug: 'pune',
+            locality: 'Baner',
+            address: 'Shop 104, Prime Square, Opposite Balewadi High Street, Baner, Pune',
+            pincode: '411045',
+            phone: '+912067881122',
+            googleMapsUrl: 'https://maps.google.com/?q=Baner+High+Street+Pune',
+            openingHours: [
+                { day: 'Monday', openTime: '09:30 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Tuesday', openTime: '09:30 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Wednesday', openTime: '09:30 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Thursday', openTime: '09:30 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Friday', openTime: '09:30 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Saturday', openTime: '09:30 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Sunday', openTime: '10:00 AM', closeTime: '02:00 PM', isClosed: true },
+            ],
+            slotDurationMinutes: 30,
+            isActive: true,
+        },
+        {
+            name: 'DermaGlow Skin Clinic',
+            slug: 'dermaglow-skin-clinic-viman-nagar',
+            city: puneCity._id,
+            citySlug: 'pune',
+            locality: 'Viman Nagar',
+            address: 'Suite 203, Phoenix East Court, Near Symbiosis, Viman Nagar, Pune',
+            pincode: '411014',
+            phone: '+912048993344',
+            googleMapsUrl: 'https://maps.google.com/?q=Phoenix+Marketcity+Viman+Nagar+Pune',
+            openingHours: [
+                { day: 'Monday', openTime: '10:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Tuesday', openTime: '10:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Wednesday', openTime: '10:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Thursday', openTime: '10:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Friday', openTime: '10:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Saturday', openTime: '10:00 AM', closeTime: '06:00 PM', isClosed: false },
+                { day: 'Sunday', openTime: '10:00 AM', closeTime: '02:00 PM', isClosed: true },
+            ],
+            slotDurationMinutes: 30,
+            isActive: true,
+        },
+        // Bangalore Clinics
+        {
+            name: 'Koramangala Ortho & Joint Center',
+            slug: 'koramangala-ortho-joint-center',
+            city: bglrCity._id,
+            citySlug: 'bangalore',
+            locality: 'Koramangala',
+            address: '80 Feet Road, 4th Block, Koramangala, Bengaluru',
+            pincode: '560034',
+            phone: '+918041559900',
+            googleMapsUrl: 'https://maps.google.com/?q=Koramangala+4th+Block+Bangalore',
+            openingHours: [
+                { day: 'Monday', openTime: '09:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Tuesday', openTime: '09:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Wednesday', openTime: '09:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Thursday', openTime: '09:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Friday', openTime: '09:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Saturday', openTime: '09:00 AM', closeTime: '07:00 PM', isClosed: false },
+                { day: 'Sunday', openTime: '09:00 AM', closeTime: '01:00 PM', isClosed: true },
+            ],
+            slotDurationMinutes: 30,
+            isActive: true,
+        },
+        {
+            name: 'Indiranagar Pediatric & Women Care',
+            slug: 'indiranagar-pediatric-women-care',
+            city: bglrCity._id,
+            citySlug: 'bangalore',
+            locality: 'Indiranagar',
+            address: '100 Feet Road, HAL 2nd Stage, Indiranagar, Bengaluru',
+            pincode: '560038',
+            phone: '+918025227766',
+            googleMapsUrl: 'https://maps.google.com/?q=100+Feet+Road+Indiranagar+Bangalore',
+            openingHours: [
+                { day: 'Monday', openTime: '08:30 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Tuesday', openTime: '08:30 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Wednesday', openTime: '08:30 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Thursday', openTime: '08:30 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Friday', openTime: '08:30 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Saturday', openTime: '08:30 AM', closeTime: '07:30 PM', isClosed: false },
+                { day: 'Sunday', openTime: '09:00 AM', closeTime: '01:00 PM', isClosed: false },
+            ],
+            slotDurationMinutes: 30,
+            isActive: true,
+        },
+        // Mumbai Clinic
+        {
+            name: 'Bandra Premier Care Clinic',
+            slug: 'bandra-premier-care-clinic',
+            city: mumCity._id,
+            citySlug: 'mumbai',
+            locality: 'Bandra West',
+            address: 'Turner Road, Near Waterfield Road, Bandra West, Mumbai',
+            pincode: '400050',
+            phone: '+912226445566',
+            googleMapsUrl: 'https://maps.google.com/?q=Turner+Road+Bandra+West+Mumbai',
+            openingHours: [
+                { day: 'Monday', openTime: '09:00 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Tuesday', openTime: '09:00 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Wednesday', openTime: '09:00 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Thursday', openTime: '09:00 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Friday', openTime: '09:00 AM', closeTime: '09:00 PM', isClosed: false },
+                { day: 'Saturday', openTime: '09:00 AM', closeTime: '08:00 PM', isClosed: false },
+                { day: 'Sunday', openTime: '10:00 AM', closeTime: '02:00 PM', isClosed: true },
+            ],
+            slotDurationMinutes: 30,
+            isActive: true,
+        },
+        // Indore Clinic
+        {
+            name: 'Medicity Super Clinic Indore',
+            slug: 'medicity-super-clinic-vijay-nagar',
+            city: indoreCity._id,
+            citySlug: 'indore',
+            locality: 'Vijay Nagar',
+            address: 'Scheme No. 54, Near Meghdoot Garden, Vijay Nagar, Indore',
+            pincode: '452010',
+            phone: '+917314055667',
+            googleMapsUrl: 'https://maps.google.com/?q=Vijay+Nagar+Indore',
+            openingHours: [
+                { day: 'Monday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Tuesday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Wednesday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Thursday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Friday', openTime: '09:00 AM', closeTime: '08:30 PM', isClosed: false },
+                { day: 'Saturday', openTime: '09:00 AM', closeTime: '07:30 PM', isClosed: false },
+                { day: 'Sunday', openTime: '10:00 AM', closeTime: '01:00 PM', isClosed: false },
+            ],
+            slotDurationMinutes: 30,
+            isActive: true,
+        },
+    ]);
+    const cardio = specialties.find((s) => s.slug === 'cardiologist');
+    const derma = specialties.find((s) => s.slug === 'dermatologist');
+    const pedia = specialties.find((s) => s.slug === 'pediatrician');
+    const ortho = specialties.find((s) => s.slug === 'orthopedic-surgeon');
+    const gynae = specialties.find((s) => s.slug === 'gynecologist');
+    const genPhys = specialties.find((s) => s.slug === 'general-physician');
+    const apexClinic = clinics.find((c) => c.slug === 'apex-heart-wellness-center-kothrud');
+    const lifelineBaner = clinics.find((c) => c.slug === 'lifeline-multispecialty-clinic-baner');
+    const dermaViman = clinics.find((c) => c.slug === 'dermaglow-skin-clinic-viman-nagar');
+    const koraOrtho = clinics.find((c) => c.slug === 'koramangala-ortho-joint-center');
+    const indiraChild = clinics.find((c) => c.slug === 'indiranagar-pediatric-women-care');
+    const bandraCare = clinics.find((c) => c.slug === 'bandra-premier-care-clinic');
+    const indoreClinic = clinics.find((c) => c.slug === 'medicity-super-clinic-vijay-nagar');
+    console.log('🌱 Seeding Doctors...');
+    const doctors = await Doctor_1.Doctor.create([
+        {
+            fullName: 'Dr. Aarav Deshmukh',
+            slug: 'dr-aarav-deshmukh-cardiologist-pune',
+            email: 'dr.aarav.deshmukh@gmail.com',
+            phone: '+919822114455',
+            photo: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600&auto=format&fit=crop&q=80',
+            gender: 'male',
+            primarySpecialty: cardio._id,
+            specialties: [cardio._id, genPhys._id],
+            qualifications: ['MBBS', 'MD - General Medicine', 'DM - Cardiology (AIIMS)'],
+            experienceYears: 16,
+            registrationNumber: 'MMC-2008-048921',
+            isVerified: true,
+            verificationBadgeDate: new Date('2023-01-15'),
+            bio: 'Dr. Aarav Deshmukh is a senior consultant interventional cardiologist with 16+ years of clinical excellence in coronary interventions, hypertension management, preventive heart screening, and complex cardiac care.',
+            languages: ['English', 'Marathi', 'Hindi'],
+            services: ['Angiography & Angioplasty', 'Echocardiography (2D & Doppler)', 'Hypertension Management', 'Preventive Heart Checkup', 'Heart Failure Treatment'],
+            clinics: [
+                {
+                    clinic: apexClinic._id,
+                    consultationFee: 900,
+                    consultationType: 'both',
+                    timings: '10:00 AM - 01:30 PM (Mon-Sat)',
+                    availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                },
+                {
+                    clinic: lifelineBaner._id,
+                    consultationFee: 1000,
+                    consultationType: 'in-person',
+                    timings: '05:30 PM - 08:30 PM (Mon, Wed, Fri)',
+                    availableDays: ['Mon', 'Wed', 'Fri'],
+                },
+            ],
+            rating: 4.9,
+            reviewCount: 142,
+            isFeatured: true,
+            isActive: true,
+        },
+        {
+            fullName: 'Dr. Meera Kulkarni',
+            slug: 'dr-meera-kulkarni-dermatologist-pune',
+            email: 'dr.meera.kulkarni@gmail.com',
+            phone: '+919822337788',
+            photo: 'https://images.unsplash.com/photo-1594824813583-74d4719280d9?w=600&auto=format&fit=crop&q=80',
+            gender: 'female',
+            primarySpecialty: derma._id,
+            specialties: [derma._id],
+            qualifications: ['MBBS', 'MD - Dermatology, Venereology & Leprosy (KEM Hospital)'],
+            experienceYears: 12,
+            registrationNumber: 'MMC-2012-073190',
+            isVerified: true,
+            verificationBadgeDate: new Date('2023-03-20'),
+            bio: 'Dr. Meera Kulkarni is a renowned dermatologist and clinical cosmetologist specializing in clinical dermatology, medical acne management, laser scar revision, pediatric skin allergies, and anti-aging therapies.',
+            languages: ['English', 'Marathi', 'Hindi'],
+            services: ['Acne & Scar Therapies', 'Hair Fall & PRP Therapy', 'Pigmentation Treatments', 'Chemical Peels', 'Mole & Skin Tag Removal'],
+            clinics: [
+                {
+                    clinic: dermaViman._id,
+                    consultationFee: 700,
+                    consultationType: 'both',
+                    timings: '10:30 AM - 01:30 PM, 05:00 PM - 08:00 PM (Mon-Sat)',
+                    availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                },
+                {
+                    clinic: lifelineBaner._id,
+                    consultationFee: 800,
+                    consultationType: 'in-person',
+                    timings: '02:30 PM - 04:30 PM (Tue, Thu, Sat)',
+                    availableDays: ['Tue', 'Thu', 'Sat'],
+                },
+            ],
+            rating: 4.8,
+            reviewCount: 98,
+            isFeatured: true,
+            isActive: true,
+        },
+        {
+            fullName: 'Dr. Rajesh Nair',
+            slug: 'dr-rajesh-nair-orthopedic-bangalore',
+            email: 'dr.rajesh.nair@gmail.com',
+            phone: '+919845012345',
+            photo: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=600&auto=format&fit=crop&q=80',
+            gender: 'male',
+            primarySpecialty: ortho._id,
+            specialties: [ortho._id],
+            qualifications: ['MBBS', 'MS - Orthopedics', 'Fellowship in Joint Replacement (Germany)'],
+            experienceYears: 19,
+            registrationNumber: 'KMC-2005-091428',
+            isVerified: true,
+            verificationBadgeDate: new Date('2022-11-10'),
+            bio: 'Dr. Rajesh Nair is a leading orthopedic and joint replacement surgeon with almost two decades of surgical experience in minimally invasive knee & hip replacements, arthroscopy, and complex trauma.',
+            languages: ['English', 'Kannada', 'Hindi', 'Malayalam'],
+            services: ['Total Knee Replacement', 'Total Hip Replacement', 'Arthroscopic ACL Reconstruction', 'Sports Injury Rehabilitation', 'Spine & Disc Management'],
+            clinics: [
+                {
+                    clinic: koraOrtho._id,
+                    consultationFee: 1000,
+                    consultationType: 'both',
+                    timings: '09:30 AM - 01:00 PM, 05:00 PM - 08:00 PM (Mon-Sat)',
+                    availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                },
+            ],
+            rating: 4.9,
+            reviewCount: 175,
+            isFeatured: true,
+            isActive: true,
+        },
+        {
+            fullName: 'Dr. Ananya Rao',
+            slug: 'dr-ananya-rao-pediatrician-bangalore',
+            email: 'dr.ananya.rao@gmail.com',
+            phone: '+919845198765',
+            photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&auto=format&fit=crop&q=80',
+            gender: 'female',
+            primarySpecialty: pedia._id,
+            specialties: [pedia._id],
+            qualifications: ['MBBS', 'MD - Pediatrics', 'Fellowship in Neonatology'],
+            experienceYears: 11,
+            registrationNumber: 'KMC-2013-055102',
+            isVerified: true,
+            verificationBadgeDate: new Date('2023-05-18'),
+            bio: 'Dr. Ananya Rao provides holistic pediatric healthcare from neonatal care to adolescent development, childhood respiratory ailments, vaccination scheduling, and nutritional assessments.',
+            languages: ['English', 'Kannada', 'Telugu', 'Hindi'],
+            services: ['Pediatric Consultation', 'Newborn & Infant Care', 'Immunization & Vaccinations', 'Growth & Developmental Assessment', 'Childhood Asthma Care'],
+            clinics: [
+                {
+                    clinic: indiraChild._id,
+                    consultationFee: 650,
+                    consultationType: 'both',
+                    timings: '09:00 AM - 01:00 PM, 04:30 PM - 08:00 PM (Mon-Sat)',
+                    availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                },
+            ],
+            rating: 4.9,
+            reviewCount: 112,
+            isFeatured: false,
+            isActive: true,
+        },
+        {
+            fullName: 'Dr. Vikramaditya Shah',
+            slug: 'dr-vikramaditya-shah-general-physician-mumbai',
+            email: 'dr.vikram.shah@gmail.com',
+            phone: '+919820055443',
+            photo: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&auto=format&fit=crop&q=80',
+            gender: 'male',
+            primarySpecialty: genPhys._id,
+            specialties: [genPhys._id, cardio._id],
+            qualifications: ['MBBS', 'MD - Internal Medicine', 'Post Graduate Diploma in Diabetology (UK)'],
+            experienceYears: 18,
+            registrationNumber: 'MMC-2006-039148',
+            isVerified: true,
+            verificationBadgeDate: new Date('2022-09-01'),
+            bio: 'Dr. Vikramaditya Shah is an esteemed physician in Bandra West focusing on lifestyle diseases, adult immunization, comprehensive diabetes reversal protocols, chronic hypertension, and post-viral recovery.',
+            languages: ['English', 'Hindi', 'Gujarati', 'Marathi'],
+            services: ['Type 2 Diabetes Reversal', 'Hypertension & Lipid Clinics', 'Adult Vaccination', 'Geriatric Medicine', 'Annual Comprehensive Checkups'],
+            clinics: [
+                {
+                    clinic: bandraCare._id,
+                    consultationFee: 1200,
+                    consultationType: 'both',
+                    timings: '10:00 AM - 02:00 PM, 05:00 PM - 08:30 PM (Mon-Sat)',
+                    availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                },
+            ],
+            rating: 4.8,
+            reviewCount: 189,
+            isFeatured: true,
+            isActive: true,
+        },
+        {
+            fullName: 'Dr. Priyanka Joshi',
+            slug: 'dr-priyanka-joshi-gynecologist-indore',
+            email: 'dr.priyanka.joshi@gmail.com',
+            phone: '+919827011223',
+            photo: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=600&auto=format&fit=crop&q=80',
+            gender: 'female',
+            primarySpecialty: gynae._id,
+            specialties: [gynae._id],
+            qualifications: ['MBBS', 'MS - Obstetrics & Gynecology', 'Diploma in Advanced Laparoscopy'],
+            experienceYears: 14,
+            registrationNumber: 'MPMC-2010-029415',
+            isVerified: true,
+            verificationBadgeDate: new Date('2023-04-12'),
+            bio: 'Dr. Priyanka Joshi is a trusted gynecologist and obstetrician in Indore providing compassionate care for high-risk pregnancies, PCOS/PCOD therapy, adolescent health, and laparoscopic procedures.',
+            languages: ['English', 'Hindi'],
+            services: ['Antenatal & High-Risk Pregnancy Care', 'PCOS & Hormonal Irregularity Management', 'Infertility Counseling', 'Laparoscopic Surgery', 'Menopause Wellness'],
+            clinics: [
+                {
+                    clinic: indoreClinic._id,
+                    consultationFee: 600,
+                    consultationType: 'both',
+                    timings: '10:00 AM - 02:00 PM, 05:00 PM - 08:00 PM (Mon-Sat)',
+                    availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                },
+            ],
+            rating: 4.9,
+            reviewCount: 134,
+            isFeatured: true,
+            isActive: true,
+        },
+    ]);
+    console.log('🌱 Seeding Sample Appointments...');
+    const sampleDoctor = doctors[0];
+    const sampleClinic = apexClinic;
+    const { token } = (0, tokenService_1.generateDoctorConfirmationToken)('BK-772910', sampleDoctor._id.toString(), 'BK-772910');
+    await Appointment_1.Appointment.create({
+        bookingId: 'BK-772910',
+        doctor: sampleDoctor._id,
+        clinic: sampleClinic._id,
+        patientName: 'Rohan Sharma',
+        patientPhone: '+919823456789',
+        patientEmail: 'rohan.sharma@example.com',
+        patientAge: 38,
+        patientGender: 'male',
+        requestedDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow
+        requestedTimeSlot: '11:00 AM',
+        consultationType: 'in-person',
+        reasonForVisit: 'Persistent mild chest tightness during morning walks and elevated blood pressure reading (145/95).',
+        status: 'pending',
+        doctorConfirmationToken: token,
+        tokenExpiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
+        communicationConsent: true,
+        whatsappConsent: true,
+        whatsappNotificationStatus: {
+            doctorNotified: true,
+            doctorNotifiedAt: new Date(),
+            patientNotified: true,
+            patientNotifiedAt: new Date(),
+        },
+    });
+    console.log('✅ Database successfully seeded with production data!');
+};
+exports.seedDatabase = seedDatabase;
+const seedDatabaseIfEmpty = async () => {
+    const count = await City_1.City.countDocuments();
+    if (count === 0) {
+        console.log('ℹ️ Database is empty. Running initial seeding...');
+        await (0, exports.seedDatabase)();
+    }
+};
+exports.seedDatabaseIfEmpty = seedDatabaseIfEmpty;
