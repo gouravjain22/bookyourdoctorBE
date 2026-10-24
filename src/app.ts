@@ -24,16 +24,14 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, postman, curl)
+      // Dynamically allow requesting origin (Netlify, Vercel, localhost, etc.)
+      // and reflect it in Access-Control-Allow-Origin to satisfy credentials: true
       if (!origin) return callback(null, true);
-      
-      const allowed = [config.clientUrl, 'http://localhost:5173', 'http://localhost:3000', 'https://letsbookyourdoctor.netlify.app'];
-      if (allowed.includes(origin) || /\.vercel\.app$/.test(origin) || origin.includes('localhost')) {
-        return callback(null, true);
-      }
-      return callback(null, true);
+      callback(null, true);
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   })
 );
 app.use(cookieParser());
