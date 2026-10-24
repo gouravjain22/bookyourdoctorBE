@@ -21,19 +21,7 @@ app.use(
     crossOriginResourcePolicy: false,
   })
 );
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Dynamically allow requesting origin (Netlify, Vercel, localhost, etc.)
-      // and reflect it in Access-Control-Allow-Origin to satisfy credentials: true
-      if (!origin) return callback(null, true);
-      callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  })
-);
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
