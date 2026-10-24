@@ -23,7 +23,16 @@ app.use(
 );
 app.use(
   cors({
-    origin: [config.clientUrl, 'http://localhost:5173', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, postman, curl)
+      if (!origin) return callback(null, true);
+      
+      const allowed = [config.clientUrl, 'http://localhost:5173', 'http://localhost:3000', 'https://letsbookyourdoctor.netlify.app'];
+      if (allowed.includes(origin) || /\.vercel\.app$/.test(origin) || origin.includes('localhost')) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
