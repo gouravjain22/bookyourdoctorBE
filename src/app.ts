@@ -15,37 +15,31 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 const app: Application = express();
 
-// Security and utility middleware
+// 1. Universal Bulletproof CORS & Preflight Handler (Must be first)
+app.use((req: Request, res: Response, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+
+  // Immediately respond to browser preflight OPTIONS requests with 204
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
+
+// 2. Security and utility middleware
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
-  })
-);
-const allowedOrigins = [
-  'https://letsbookyourdoctor.netlify.app',
-  'http://localhost:5173',
-  'http://localhost:3000',
-  config.clientUrl,
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman)
-      if (!origin) return callback(null, true);
-      if (
-        allowedOrigins.includes(origin) ||
-        origin.endsWith('.netlify.app') ||
-        origin.endsWith('.vercel.app') ||
-        origin.includes('localhost')
-      ) {
-        return callback(null, true);
-      }
-      return callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    crossOriginEmbedderPolicy: false,
   })
 );
 app.use(cookieParser());
