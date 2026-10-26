@@ -18,13 +18,27 @@ const appointmentRoutes_1 = __importDefault(require("./routes/appointmentRoutes"
 const notificationRoutes_1 = __importDefault(require("./routes/notificationRoutes"));
 const errorHandler_1 = require("./middleware/errorHandler");
 const app = (0, express_1.default)();
-// Security and utility middleware
+// 1. Universal Bulletproof CORS & Preflight Handler (Must be first)
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+    if (req.method === 'OPTIONS') {
+        res.status(204).end();
+        return;
+    }
+    next();
+});
+// 2. Security and utility middleware
 app.use((0, helmet_1.default)({
     crossOriginResourcePolicy: false,
-}));
-app.use((0, cors_1.default)({
-    origin: [env_1.config.clientUrl, 'http://localhost:5173', 'http://localhost:3000'],
-    credentials: true,
+    crossOriginEmbedderPolicy: false,
 }));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json({ limit: '10mb' }));
