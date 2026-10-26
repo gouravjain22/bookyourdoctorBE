@@ -7,7 +7,7 @@ export const config = {
   port: parseInt(process.env.PORT || '5000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
-  mongoUri: process.env.MONGODB_URI || '',
+  mongoUri: (process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL || '').trim().replace(/^["']|["']$/g, ''),
   jwtSecret: process.env.JWT_SECRET || 'super_secret_bookyourdoctor_jwt_key_2026_dev',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   doctorConfirmationSecret: process.env.DOCTOR_CONFIRMATION_SECRET || 'doctor_whatsapp_secure_token_key_2026',
